@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "SpinScan3D",
+    "slug": "spinscan-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "写真を撮影してNextcloudにアップロードするためにカメラを使用します。"
+      },
+      "bundleIdentifier": "com.anonymous.spinscanapp"
+    },
+    "android": {
+      "permissions": [
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "package": "com.anonymous.spinscanapp",
+      "usesCleartextTraffic": true
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-asset"
+    ]
+  }
+}
