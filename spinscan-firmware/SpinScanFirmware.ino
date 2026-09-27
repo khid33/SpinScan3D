@@ -9,7 +9,7 @@ const char* password = "YOUR_WIFI_PASSWORD";
 // 28BYJ-48 ステッピングモーターの設定
 // ギア比は約 63.6839:1, 1ステップ 5.625度 (フルステップの場合)
 // 1回転に必要なステップ数: 2048 (4-step sequence)
-const float STEPS_PER_REV = 2048.0;
+const float STEPS_PER_REV = 4096.0;
 
 // ピン定義 (ULN2003A接続)
 #define IN1 19
@@ -51,11 +51,13 @@ void handleMove() {
   }
 
   long targetStep = angleToSteps(angle);
-  Serial.printf("Moving to angle: %.2f (Step: %ld)\n", angle, targetStep);
+  Serial.printf("Moving to angle: %.2f (Step: %ld)\\n", angle, targetStep);
   
   stepper.moveTo(targetStep);
+  // 回転が完了するまでブロックして待機
+  stepper.runToPosition();
   
-  server.send(200, "text/plain", String("Moving to ") + angle + " degrees.");
+  server.send(200, "text/plain", String("Moving to ") + angle + " degrees completed.");
 }
 
 void setup() {
@@ -72,7 +74,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected!");
+  Serial.println("\\nConnected!");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 

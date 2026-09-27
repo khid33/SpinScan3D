@@ -35,3 +35,52 @@ out/
 *.tmp
 *.bak
 *.new_func
+
+# Expo
+.expo/
+.expo-shared/
+
+# iOS
+*.pbxproj.xcworkspacedata
+xcuserdata/
+Pods/
+Podfile.lock
+
+# Android
+*.keystore
+*.jks
+android/app/build/
+android/gradle/caches/
+android/.gradle/
+.gradle/
+*.apk
+*.aab
+*.aar
+*.so
+*.class
+*.dex
+*.o
+*.dylib
+
+# Gradle wrapper - keep properties but not the jar if desired
+# android/gradle/wrapper/gradle-wrapper.jar
+
+# Nextcloud proxy
+nextcloud-proxy/
+
+# Firmware stub
+spinscan-firmware/stub/
+
+# Root-level generated files
+android/
+app.json
+
+# iOS local files
+.xcode.env
+Podfile.properties.json
+
+
+# Android debug keystore
+debug.keystore
+
+

@@ -3,13 +3,16 @@ global.Buffer = Buffer;
 import React from 'react';
 import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
+import { ConfigProvider } from './src/hooks/useConfig';
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <HomeScreen />
-    </SafeAreaView>
+    <ConfigProvider>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <HomeScreen />
+      </SafeAreaView>
+    </ConfigProvider>
   );
 }
 

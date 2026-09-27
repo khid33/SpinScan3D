@@ -1,5 +1,11 @@
 {
   "dependencies": {
-    "base-64": "^1.0.0"
-  }
+    "base-64": "^1.0.0",
+    "expo": "^57.0.25",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  },
+  "name": "SpinScan3D",
+  "version": "1.0.0",
+  "scripts": {}
 }

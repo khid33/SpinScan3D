@@ -15,7 +15,7 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import { useConfig } from '../hooks/useConfig';
+import { useConfig, loadConfig } from '../hooks/useConfig';
 
 const SettingsScreen = ({ onBack }) => {
   const { config, updateConfig, isLoading } = useConfig();
@@ -25,6 +25,13 @@ const SettingsScreen = ({ onBack }) => {
   const [currentPath, setCurrentPath] = useState('');
   const [isFetching, setIsFetching] = useState(false);
   const [parentPath, setParentPath] = useState('');
+
+  // ファイルから最新設定をロード
+  useEffect(() => {
+    loadConfig().then((loaded) => {
+      setFormData(loaded);
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (!isLoading) {
@@ -51,8 +58,14 @@ const SettingsScreen = ({ onBack }) => {
       '設定が保存されました。\n\n' +
         `URL: ${result.NEXTCLOUD_URL}\n` +
         `ユーザー: ${result.NEXTCLOUD_USER}\n` +
-        `フォルダ: ${result.NEXTCLOUD_FOLDER || 'ルート'}`,
-      [{ text: 'OK' }]
+        `フォルダ: ${result.NEXTCLOUD_FOLDER || 'ルート'}\\n` +
+        `撮影枚数: ${result.CAPTURE_COUNT}枚`,
+      [
+        {
+          text: 'OK',
+          onPress: () => onBack(result),
+        },
+      ]
     );
   };
 
@@ -183,8 +196,10 @@ const SettingsScreen = ({ onBack }) => {
     setShowFolderPicker(true);
   };
 
-  const handleFolderSelect = (folderPath) => {
-    setFormData({ ...formData, NEXTCLOUD_FOLDER: folderPath });
+  const handleFolderSelect = async (folderPath) => {
+    const updated = { ...formData, NEXTCLOUD_FOLDER: folderPath };
+    setFormData(updated);
+    await updateConfig(updated);
     setShowFolderPicker(false);
   };
 
@@ -387,6 +402,34 @@ const SettingsScreen = ({ onBack }) => {
           </Text>
         </View>
 
+         <View style={styles.section}>
+           <Text style={styles.sectionTitle}>撮影設定</Text>
+           <Text style={styles.label}>撮影枚数</Text>
+           <View style={styles.captureCountContainer}>
+             {[4, 8, 16, 24].map((count) => (
+               <TouchableOpacity
+                 key={count}
+                 style={[
+                   styles.countButton,
+                   formData.CAPTURE_COUNT === String(count) && styles.countButtonSelected,
+                 ]}
+                 onPress={async () => {
+                   const updated = { ...formData, CAPTURE_COUNT: String(count) };
+                   setFormData(updated);
+                   await updateConfig(updated);
+                 }}
+               >
+                 <Text style={[
+                   styles.countButtonText,
+                   formData.CAPTURE_COUNT === String(count) && styles.countButtonTextSelected,
+                 ]}>
+                   {count}
+                 </Text>
+               </TouchableOpacity>
+             ))}
+           </View>
+         </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>現在設定</Text>
           <View style={styles.configDisplay}>
@@ -581,9 +624,34 @@ const styles = StyleSheet.create({
   configText: {
     fontSize: 13,
     color: '#555',
-    marginBottom: 4,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
+   captureCountContainer: {
+     flexDirection: 'row',
+     gap: 12,
+     marginBottom: 8,
+   },
+   countButton: {
+     flex: 1,
+     paddingVertical: 12,
+     borderRadius: 8,
+     borderWidth: 2,
+     borderColor: '#ddd',
+     alignItems: 'center',
+     backgroundColor: '#fff',
+   },
+   countButtonSelected: {
+     borderColor: '#007AFF',
+     backgroundColor: '#e6f0ff',
+   },
+   countButtonText: {
+     fontSize: 18,
+     fontWeight: '600',
+     color: '#333',
+   },
+   countButtonTextSelected: {
+     color: '#007AFF',
+   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
