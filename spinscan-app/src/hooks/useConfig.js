@@ -4,8 +4,8 @@ import RNFS from 'react-native-fs';
 const CONFIG_FILE_PATH = `${RNFS.DocumentDirectoryPath}/spinscan_config.json`;
 
 const DEFAULT_CONFIG = {
-  SERVER_IP: '192.168.1.100',
-  SERVER_PORT: '5000',
+  SERVER_IP: '192.168.0.116',
+  SERVER_PORT: '80',
   CAPTURE_COUNT: '8',
   NEXTCLOUD_URL: 'http://localhost:3000/',
   NEXTCLOUD_USER: 'khid',

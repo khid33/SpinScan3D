@@ -291,8 +291,8 @@ const SettingsScreen = ({ onBack }) => {
           onPress: async () => {
             const resetConfig = {
               ...config,
-              SERVER_IP: '192.168.1.100',
-              SERVER_PORT: '5000',
+              SERVER_IP: '192.168.0.116',
+              SERVER_PORT: '80',
               NEXTCLOUD_URL: 'https://your-nextcloud-domain.com/remote.php/dav/files/',
               NEXTCLOUD_USER: '',
               NEXTCLOUD_PASS: '',

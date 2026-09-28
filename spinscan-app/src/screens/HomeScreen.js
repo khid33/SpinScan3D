@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
+
 import { shootPhoto, homeTurntable, moveTurntable, uploadToNextcloud } from '../api/client';
 import SettingsScreen from './SettingsScreen';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import RNFS from 'react-native-fs';
 import { useConfig, loadConfig } from '../hooks/useConfig';
+import KeepAwake from 'react-native-keep-awake';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -16,6 +18,7 @@ const HomeScreen = () => {
   const [captureCount, setCaptureCount] = useState(8);
   const { config, updateConfig } = useConfig();
   const cameraRef = useRef(null);
+  const [permission, requestPermission] = useCameraPermissions();
 
   const addLog = (message) => {
     const timestamp = new Date().toLocaleTimeString('ja-JP', { hour12: false });
@@ -34,9 +37,6 @@ const HomeScreen = () => {
   };
 
   // captureCount が変更されたら angles を更新
-  const angles = anglePresets[captureCount] || anglePresets[8];
-
-  // config の CAPTURE_COUNT を監視して state に反映（ファイルから読み込み）
   useEffect(() => {
     loadConfig().then((loadedConfig) => {
       const count = parseInt(loadedConfig.CAPTURE_COUNT || '8', 10);
@@ -49,6 +49,7 @@ const HomeScreen = () => {
   const handleCapture = async () => {
     setLoading(true);
     setLogs([]);
+    KeepAwake.activate();
     
     // ファイルから最新の設定を読み込む
     const currentConfig = await loadConfig();
@@ -171,12 +172,14 @@ const HomeScreen = () => {
       addLog(`エラー: ${error.message}`);
       Alert.alert('エラー', error.message || '撮影プロセス中に予期せぬエラーが発生しました。');
     } finally {
+      KeepAwake.deactivate();
       setLoading(false);
     }
   };
 
   const handleManualCapture = async () => {
     setManualLoading(true);
+    KeepAwake.activate();
     try {
       const capturedUris = [];
       
@@ -210,12 +213,12 @@ const HomeScreen = () => {
         capturedUris.push(photo.uri);
         
         if (i < 2) {
-          console.log(`次の撮影まで3秒待機します...`);
+          console.log(`次の撮影まで3秒待기します...`);
           await sleep(3000);
         }
       }
 
-      console.log('全撮影が完了しました。アップロードを開始します...');
+      console.log('全撮影が完了しました。アップロードを開始합니다...');
       
       // すべての撮影完了後にまとめてアップロード
       for (let i = 0; i < capturedUris.length; i++) {
@@ -236,6 +239,7 @@ const HomeScreen = () => {
       console.error('Manual Capture Sequence Error:', error);
       Alert.alert('エラー', `処理中にエラーが発生しました: ${error.message}`);
     } finally {
+      KeepAwake.deactivate();
       setManualLoading(false);
     }
   };
@@ -253,6 +257,35 @@ const HomeScreen = () => {
 
   if (showSettings) {
     return <SettingsScreen onBack={handleBackFromSettings} />;
+  }
+
+  if (!permission) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.overlay}>
+          <Text style={[styles.title, { textAlign: 'center', fontSize: 24, width: '100%' }]}>
+            カメラの権限が必要です
+          </Text>
+          <Text style={{ color: '#fff', textAlign: 'center', marginBottom: 30 }}>
+            カメラを使用して撮影を行うには、カメラへのアクセスを許可してください。
+          </Text>
+          <TouchableOpacity 
+            style={[styles.mainButton, { width: 200, height: 60, borderRadius: 30 }]} 
+            onPress={requestPermission}
+          >
+            <Text style={{ color: '#000', fontSize: 16, fontWeight: 'bold' }}>権限を許可する</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -438,4 +471,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-

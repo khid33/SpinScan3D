@@ -8,8 +8,8 @@
  */
 
 export const DEFAULT_CONFIG = {
-  SERVER_IP: '192.168.1.100', // 撮影サーバーのデフォルトIP
-  SERVER_PORT: '5000',
+  SERVER_IP: '192.168.0.116', // 回転台サーバーIP
+  SERVER_PORT: '80',
   NEXTCLOUD_URL: 'https://your-nextcloud-domain.com/remote.php/dav/files/',
   NEXTCLOUD_USER: '',
   NEXTCLOUD_PASS: '',

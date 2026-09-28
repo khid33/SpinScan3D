@@ -1,7 +1,11 @@
 package com.anonymous.spinscanapp
 
+import android.content.Context
 import android.os.Build
+import android.os.Binder
 import android.os.Bundle
+import android.os.PowerManager
+import android.view.WindowManager
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -11,12 +15,30 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
+  private var wakeLock: PowerManager.WakeLock? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
     // This is required for expo-splash-screen.
-    setTheme(R.style.AppTheme);
+    setTheme(R.style.AppTheme)
     super.onCreate(null)
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+  }
+
+  override fun onResume() {
+    super.onResume()
+    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+    wakeLock = pm.newWakeLock(
+      PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+      "SpinScan:TurntableCapture"
+    ).apply { acquire(30 * 60 * 1000L /* 30 min timeout */) }
+  }
+
+  override fun onPause() {
+    super.onPause()
+    wakeLock?.let { if (it.isHeld) it.release() }
+    wakeLock = null
   }
 
   /**
